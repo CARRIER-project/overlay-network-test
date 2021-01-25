@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+node_and_server/node-config.yml
+.idea/
+
+node_and_server/VantageClient.py
+node_and_server/configure_node.py

@@ -1,0 +1,32 @@
+version: "3"
+services:
+  vserver:
+    image: "harbor.vantage6.ai/infrastructure/server:latest"
+    volumes:
+      - ./db/:/mnt/db/
+      - ./server-config.yml:/mnt/config.yml
+    command: vserver-local start -c /mnt/config.yml
+    ports:
+      - "5000:5000"
+  vnode:
+    container_name: vantage6-mumc-user
+    depends_on:
+      - vserver
+
+    image: "harbor.vantage6.ai/infrastructure/node_and_server:latest"
+    command: "vnode-local start -c /mnt/config/mumc.yml --dockerized"
+    volumes:
+      - ./node-config.yml:/mnt/config/config.yml
+      - ./diabetes.csv:/mnt/database/database.csv
+      - /var/run/docker.sock:/var/run/docker.sock
+      - vnode-shared-volume:/mnt/data
+    environment:
+      - DATA_VOLUME_NAME=vnode-shared-volume
+      - DATABASE_URI=/mnt/database/database.csv
+
+  configure_node:
+    image: python:
+
+volumes:
+  vnode-shared-volume:
+    name: vnode-shared-volume
