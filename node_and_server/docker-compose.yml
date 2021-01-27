@@ -9,23 +9,28 @@ services:
     ports:
       - "5000:5000"
   vnode:
-    container_name: vantage6-mumc-user
+    container_name: vantage6-test-user
     depends_on:
       - vserver
 
-    image: "harbor.vantage6.ai/infrastructure/node_and_server:latest"
-    command: "vnode-local start -c /mnt/config/mumc.yml --dockerized"
+    image: "harbor.vantage6.ai/infrastructure/node:latest"
+    command: "vnode-local start -c /mnt/config/test.yml --dockerized"
     volumes:
-      - ./node-config.yml:/mnt/config/config.yml
+      - ./node-config.yml:/mnt/config/test.yml
       - ./diabetes.csv:/mnt/database/database.csv
       - /var/run/docker.sock:/var/run/docker.sock
       - vnode-shared-volume:/mnt/data
+      - ./id_rsa:/mnt/private_key.pem
     environment:
       - DATA_VOLUME_NAME=vnode-shared-volume
       - DATABASE_URI=/mnt/database/database.csv
 
-  configure_node:
-    image: python:
+  triplestore:
+    image: djoerzilla/graphdb-free
+    ports:
+      - 7200:7200
+    volumes:
+      - ./triplestores/gp_organization:/mnt/config
 
 volumes:
   vnode-shared-volume:
